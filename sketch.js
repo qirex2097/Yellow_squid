@@ -343,8 +343,10 @@ function mousePressed() {
                     cell_small_num[cell].splice(idx, 1);
                 }
             } else {
-                if (cell_small_num[cell] && !cell_small_num[cell].includes(small_num)) {
-                    cell_small_num[cell].push(small_num);
+                if (cell_small_num[cell]) {
+                    if (!cell_small_num[cell].includes(small_num)) {
+                        cell_small_num[cell].push(small_num);
+                    }
                 } else {
                     cell_small_num[cell] = [small_num];
                 }
