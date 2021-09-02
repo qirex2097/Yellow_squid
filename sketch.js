@@ -52,7 +52,8 @@ let edit_mode = false;
 
 //----------------------------------------
 function setup() {
-    createCanvas(320, 480);
+    //createCanvas(320, 480);
+    createCanvas(windowWidth, windowHeight);
 
     build_pattern(pattern_no);
     for (const k in pattern_num) {
