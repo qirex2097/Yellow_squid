@@ -13,12 +13,12 @@ let cell_num = [];
 let cell_small_num = [];
 
 
-const GAP_Y = 5;
-const STAGE_X = 5;
-const STAGE_Y = GAP_Y;
-const YOKO = 5;
-const TATE = 5;
-const SIZE = 50;
+let GAP_Y = 5;
+let STAGE_X = 5;
+let STAGE_Y = GAP_Y;
+let YOKO = 5;
+let TATE = 5;
+let SIZE = 50;
 
 const color_palette = [
     'pink',
@@ -28,24 +28,27 @@ const color_palette = [
 ];
 
 const PALETTE_KAZU = color_palette.length;
-const PALETTE_X = STAGE_X + YOKO * SIZE + GAP_Y;
-const PALETTE_Y = STAGE_Y;
-const PALETTE_YOKO = 1;
-const PALETTE_TATE = color_palette.length;
-const PALETTE_SIZE = SIZE;
+let PALETTE_X = STAGE_X + YOKO * SIZE + GAP_Y;
+let PALETTE_Y = STAGE_Y;
+let PALETTE_YOKO = 1;
+let PALETTE_TATE = color_palette.length;
+let PALETTE_SIZE = SIZE;
 
-const NUM_X = STAGE_X;
-const NUM_Y = STAGE_Y + SIZE * 5 + GAP_Y;
-const NUM_SIZE = Math.floor(SIZE * YOKO / 5);
+let NUM_X = STAGE_X;
+let NUM_Y = STAGE_Y + SIZE * 5 + GAP_Y;
+let NUM_SIZE = Math.floor(SIZE * YOKO / 5);
 
-const SMALL_NUM_X = STAGE_X;
-const SMALL_NUM_Y = NUM_Y + NUM_SIZE + GAP_Y;
-const SMALL_NUM_SIZE = NUM_SIZE;
+let SMALL_NUM_X = STAGE_X;
+let SMALL_NUM_Y = NUM_Y + NUM_SIZE + GAP_Y;
+let SMALL_NUM_SIZE = NUM_SIZE;
 
-const COMMAND_X = STAGE_X;
-const COMMAND_Y = SMALL_NUM_Y + NUM_SIZE + GAP_Y;
-const COMMAND_SIZE = NUM_SIZE;
-const COMMAND_KAZU = 3;
+let COMMAND_X = STAGE_X;
+let COMMAND_Y = SMALL_NUM_Y + NUM_SIZE + GAP_Y;
+let COMMAND_SIZE = NUM_SIZE;
+let COMMAND_KAZU = 3;
+
+let TEXT_SIZE = 32;
+let SMALL_TEXT_SIZE = 12;
 
 let selected_cells = [];
 let edit_mode = false;
@@ -54,6 +57,28 @@ let edit_mode = false;
 function setup() {
     //createCanvas(320, 480);
     createCanvas(windowWidth, windowHeight);
+
+    let width = windowWidth;
+    let heigt = windowHeight;
+    SIZE = min(100, min(Math.floor(width / (YOKO + PALETTE_YOKO + 0.5)), Math.floor(height / (TATE + 3 + 1))));
+    TEXT_SIZE = Math.floor(32 * SIZE / 50);
+    SMALL_TEXT_SIZE = Math.floor(TEXT_SIZE / 3);
+
+    PALETTE_SIZE = SIZE;
+    PALETTE_X = STAGE_X + YOKO * SIZE + GAP_Y;
+    PALETTE_Y = STAGE_Y;
+
+    NUM_SIZE = SIZE;
+    NUM_X = STAGE_X;
+    NUM_Y = STAGE_Y + SIZE * TATE + GAP_Y;
+
+    SMALL_NUM_SIZE = SIZE;
+    SMALL_NUM_X = STAGE_X;
+    SMALL_NUM_Y = NUM_Y + NUM_SIZE + GAP_Y;
+
+    COMMAND_SIZE = SIZE;
+    COMMAND_X = STAGE_X;
+    COMMAND_Y = SMALL_NUM_Y + NUM_SIZE + GAP_Y;
 
     build_pattern(pattern_no);
     for (const k in pattern_num) {
@@ -85,7 +110,7 @@ function draw() {
             stroke('midnightblue');
             fill('midnightblue');
             strokeWeight(1);
-            textSize(32);
+            textSize(TEXT_SIZE);
             textAlign(CENTER, CENTER);
             text(pattern_ans[i], x + SIZE / 2, y + SIZE / 2);
         } else if (1 <= num && num <= 5) {
@@ -97,17 +122,18 @@ function draw() {
                 fill(0);
             }
             strokeWeight(1);
-            textSize(32);
+            textSize(TEXT_SIZE);
             textAlign(CENTER, CENTER);
             text(num, x + SIZE / 2, y + SIZE / 2);
         } else if (small_num && small_num.length > 0) {
             strokeWeight(1);
-            textSize(12);
+            textSize(SMALL_TEXT_SIZE);
             textAlign(CENTER, CENTER);
             for (let num of small_num) {
+                const moji_gap = Math.floor(8 * SMALL_TEXT_SIZE / 12);
                 stroke(0)
                 fill(0);
-                text(num, x + NUM_SIZE / 2 + (num - 3) * 8, y + NUM_SIZE / 2);
+                text(num, x + NUM_SIZE / 2 + (num - 3) * moji_gap, y + NUM_SIZE / 2);
             }
         }
     }
@@ -169,7 +195,7 @@ function draw() {
         let moji = `${i + 1}`;
         strokeWeight(1);
         fill(0);
-        textSize(32);
+        textSize(TEXT_SIZE);
         textAlign(CENTER, CENTER);
         if (edit_mode) {
             textSize(20);
@@ -198,6 +224,7 @@ function draw() {
     for (let i = 0; i < 5; i++) {
         let x = SMALL_NUM_X + i * NUM_SIZE;
         let y = SMALL_NUM_Y;
+        const moji_gap = Math.floor(8 * SMALL_TEXT_SIZE / 12);
     
         stroke(0);
         strokeWeight(3);
@@ -205,17 +232,17 @@ function draw() {
         rect(x, y, NUM_SIZE);
 
         strokeWeight(1);
-        textSize(12);
+        textSize(SMALL_TEXT_SIZE);
         textAlign(CENTER, CENTER);
         stroke(180);
         fill(180);
         for (let j = 0; j < 5; j++) {
             if (j == i) continue;
-            text(j + 1, x + NUM_SIZE / 2 + (j - 2) * 8, y + NUM_SIZE / 2);
+            text(j + 1, x + NUM_SIZE / 2 + (j - 2) * moji_gap, y + NUM_SIZE / 2);
         }
         stroke(0)
         fill(0);
-        text(i + 1, x + NUM_SIZE / 2 + (i - 2) * 8, y + NUM_SIZE / 2);
+        text(i + 1, x + NUM_SIZE / 2 + (i - 2) * moji_gap, y + NUM_SIZE / 2);
     }
 
     //----------
@@ -254,6 +281,13 @@ function draw() {
             text('EDIT', x + COMMAND_SIZE / 2, y + COMMAND_SIZE / 2)
         }
     }
+
+    strokeWeight(1);
+    stroke(0);
+    fill(0);
+    textSize(20);
+    textAlign(LEFT, TOP)
+    text(pattern_no + 1, PALETTE_X, PALETTE_Y + PALETTE_SIZE * PALETTE_KAZU + GAP_Y);
 }
 
 function mousePressed() {
