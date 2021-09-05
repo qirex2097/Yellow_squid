@@ -45,13 +45,14 @@ let SMALL_NUM_SIZE = NUM_SIZE;
 let COMMAND_X = STAGE_X;
 let COMMAND_Y = SMALL_NUM_Y + NUM_SIZE + GAP_Y;
 let COMMAND_SIZE = NUM_SIZE;
-let COMMAND_KAZU = 3;
+let COMMAND_KAZU = 4;
 
 let TEXT_SIZE = 32;
 let SMALL_TEXT_SIZE = 12;
 
 let selected_cells = [];
 let edit_mode = false;
+let checked_flg = false;
 
 //----------------------------------------
 function setup() {
@@ -85,14 +86,17 @@ function setup() {
         cell_num[k] = pattern_num[k];
     }
     edit_mode = false;
+    checked_flg = false;
 }
 
 function draw() {
+    let background_color = 'pink';
     if (edit_mode) {
-        background('skyblue');
-    } else {
-        background('pink');
+        background_color = 'skyblue';
+    } else if (checked_flg) {
+	background_color = 'greenyellow';
     }
+    background(background_color);
 
     for (let i = 0; i < 25; i++) {
         let x = STAGE_X + (i % 5) * SIZE;
@@ -101,7 +105,11 @@ function draw() {
         let num = cell_num[i];
         let small_num = cell_small_num[i];
         
-        fill(color_palette[color_no]);
+	if (color_no > 0) {
+            fill(color_palette[color_no]);
+	} else {
+	    fill(background_color);
+	}
         stroke(128);
         strokeWeight(1);
         rect(x, y, SIZE);
@@ -279,15 +287,39 @@ function draw() {
             stroke(0);
             fill(0);
             text('EDIT', x + COMMAND_SIZE / 2, y + COMMAND_SIZE / 2)
-        }
+        } else if (i == 3) {
+            strokeWeight(1);
+            textSize(20);
+            stroke(0);
+            fill(0);
+            text('CHK', x + COMMAND_SIZE / 2, y + COMMAND_SIZE / 2)
+	}
     }
 
+    let x = PALETTE_X;
+    let y = PALETTE_Y + PALETTE_SIZE * PALETTE_KAZU + GAP_Y;
     strokeWeight(1);
     stroke(0);
     fill(0);
     textSize(20);
     textAlign(LEFT, TOP)
-    text(pattern_no + 1, PALETTE_X, PALETTE_Y + PALETTE_SIZE * PALETTE_KAZU + GAP_Y);
+    text(pattern_no + 1, x, y);
+    y += 20;
+    if (edit_mode) {
+	let counter = 0;
+	for (const ans of pattern_ans_list) {
+	    let flg = true;
+	    for (const cell of selected_cells) {
+		if (pattern_ans_list[ans_no][cell] != ans[cell]) {
+		    flg = false;
+		    break;
+		}
+	    }
+	    if (flg) counter++;
+	}
+	text(counter, x, y);
+	y += 20;
+    }
 }
 
 function mousePressed() {
@@ -413,6 +445,7 @@ function mousePressed() {
         } else if (command_no == 2) {
             if (edit_mode) {
                 edit_mode = false;
+		checked_flg = false;
                 pattern_num = {};
                 for (const cell of selected_cells) {
                     pattern_num[cell] = pattern_ans[cell];
@@ -427,19 +460,49 @@ function mousePressed() {
 
                 selected_cells = [];
             } else if (cell_small_num.length == 0 && cell_color_no.length == 0) {
-                /*
-                const moji = `パターン番号 1-${pattern_list.length}`;
-                let result = prompt(moji, pattern_no + 1);
-                */
                 let result = pattern_no + 1;
                 if (result && 1 <= result && result < pattern_list.length + 1) {
                     edit_mode = true;
+		    checked_flg = false;
                     pattern_no = result - 1;
                     build_pattern(pattern_no);
                     selected_cells = [];
                 }
             }
-        }
+        } else if (command_no == 3) {
+	    if (checked_flg) {
+		checked_flg = false;
+	    } else {
+		checked_flg = true;
+		if (cell_num.filter(e => { return 1 <= e && e <= 5 }).length < 25) {
+		    checked_flg = false;
+		}
+		for (let i = 0; i < 25; i += 5) {
+		    const arr = [cell_num[i], 
+				 cell_num[i + 1], 
+				 cell_num[i + 2], 
+				 cell_num[i + 3], 
+				 cell_num[i + 4]];
+		    if (new Set(arr).size != 5) {
+			checked_flg = false;
+		    }
+		}
+		for (const block of pattern) {
+		    const arr = [cell_num[block[0]], 
+				 cell_num[block[1]], 
+				 cell_num[block[2]], 
+				 cell_num[block[3]], 
+				 cell_num[block[4]]];
+		    if (new Set(arr).size != 5) {
+			checked_flg = false;
+		    }
+		}
+	    }
+	}
+
+	if (cell_num.filter(e => { return 1 <= e && e <= 5 }).length < 25) {
+	    checked_flg = false;
+	}
     } else if (unselected) {
         selected_cells = [];
     }
